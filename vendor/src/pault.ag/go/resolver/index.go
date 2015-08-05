@@ -101,6 +101,7 @@ func (can Candidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Po
 	satisfied := false
 	seenRealtions := []string{}
 
+	versionEntries := []control.BinaryIndex{}
 	for _, installable := range entries {
 		q := version.Compare(installable.Version, relatioNumber)
 		seenRealtions = append(seenRealtions, installable.Version.String())
@@ -121,8 +122,12 @@ func (can Candidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Po
 		}
 
 		if satisfied {
-			return true, "Relation exists with a satisfied version constraint", []control.BinaryIndex{installable} // TODO gather the full list of version-constrained satisfiers
+			versionEntries = append(versionEntries, installable)
 		}
+	}
+
+	if len(versionEntries) > 0 {
+		return true, "Relation exists with a satisfied version constraint", versionEntries
 	}
 
 	return false, fmt.Sprintf(
