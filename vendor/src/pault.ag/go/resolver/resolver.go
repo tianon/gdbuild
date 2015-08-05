@@ -1,4 +1,4 @@
-package resolver
+package resolver // import "pault.ag/go/resolver"
 
 import (
 	"compress/gzip"

@@ -47,7 +47,7 @@ func ReadFromBinaryIndex(in io.Reader) (*Canidates, error) {
 
 func (can Canidates) ExplainSatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) (bool, string) {
 	for _, possi := range depends.GetPossibilities(arch) {
-		can, why := can.ExplainSatisfies(arch, possi)
+		can, why, _ := can.ExplainSatisfies(arch, possi)
 		if !can {
 			return false, fmt.Sprintf("Possi %s can't be satisfied - %s", possi.Name, why)
 		}
@@ -61,22 +61,23 @@ func (can Canidates) SatisfiesBuildDepends(arch dependency.Arch, depends depende
 }
 
 func (can Canidates) Satisfies(arch dependency.Arch, possi dependency.Possibility) bool {
-	ret, _ := can.ExplainSatisfies(arch, possi)
+	ret, _, _ := can.ExplainSatisfies(arch, possi)
 	return ret
 }
 
-func (can Canidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Possibility) (bool, string) {
+func (can Canidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Possibility) (bool, string, []control.BinaryIndex) {
 	entries, ok := can[possi.Name]
 	if !ok { // no known entries in the Index
-		return false, fmt.Sprintf("Totally unknown package: %s", possi.Name)
+		return false, fmt.Sprintf("Totally unknown package: %s", possi.Name), nil
 	}
 
 	if possi.Arch != nil {
 		satisfied := false
+		archEntries := []control.BinaryIndex{}
 		for _, installable := range entries {
 			if installable.Architecture.Is(possi.Arch) {
+				archEntries = append(archEntries, installable)
 				satisfied = true
-				break
 			}
 		}
 		if !satisfied {
@@ -85,12 +86,13 @@ func (can Canidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Pos
 				possi.Arch.ABI,
 				possi.Arch.OS,
 				possi.Arch.CPU,
-			)
+			), nil
 		}
+		entries = archEntries
 	}
 
 	if possi.Version == nil {
-		return true, "Relation exists, no version constraint"
+		return true, "Relation exists, no version constraint", entries
 	}
 
 	// OK, so we have to play with versions now.
@@ -115,11 +117,11 @@ func (can Canidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Pos
 		case "=":
 			satisfied = q == 0
 		default:
-			return false, "Unknown operator D:" // XXX: WHAT THE SHIT
+			return false, "Unknown operator D:", nil // XXX: WHAT THE SHIT
 		}
 
 		if satisfied {
-			return true, "Relation exists with a satisfied version constraint"
+			return true, "Relation exists with a satisfied version constraint", []control.BinaryIndex{installable} // TODO gather the full list of version-constrained satisfiers
 		}
 	}
 
@@ -129,5 +131,5 @@ func (can Canidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Pos
 		vr.Operator,
 		vr.Number,
 		strings.Join(seenRealtions, ", "),
-	)
+	), nil
 }
