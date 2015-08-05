@@ -1,4 +1,4 @@
-package resolver
+package resolver // import "pault.ag/go/resolver"
 
 import (
 	"bufio"
@@ -11,9 +11,9 @@ import (
 	"pault.ag/go/debian/version"
 )
 
-type Canidates map[string][]control.BinaryIndex
+type Candidates map[string][]control.BinaryIndex
 
-func (can *Canidates) AppendBinaryIndexReader(in io.Reader) error {
+func (can *Candidates) AppendBinaryIndexReader(in io.Reader) error {
 	reader := bufio.NewReader(in)
 	index, err := control.ParseBinaryIndex(reader)
 	if err != nil {
@@ -23,29 +23,29 @@ func (can *Canidates) AppendBinaryIndexReader(in io.Reader) error {
 	return nil
 }
 
-func (can *Canidates) AppendBinaryIndex(index []control.BinaryIndex) {
+func (can *Candidates) AppendBinaryIndex(index []control.BinaryIndex) {
 	for _, entry := range index {
 		(*can)[entry.Package] = append((*can)[entry.Package], entry)
 	}
 }
 
-func NewCanidates(index []control.BinaryIndex) Canidates {
-	ret := Canidates{}
+func NewCandidates(index []control.BinaryIndex) Candidates {
+	ret := Candidates{}
 	ret.AppendBinaryIndex(index)
 	return ret
 }
 
-func ReadFromBinaryIndex(in io.Reader) (*Canidates, error) {
+func ReadFromBinaryIndex(in io.Reader) (*Candidates, error) {
 	reader := bufio.NewReader(in)
 	index, err := control.ParseBinaryIndex(reader)
 	if err != nil {
 		return nil, err
 	}
-	can := NewCanidates(index)
+	can := NewCandidates(index)
 	return &can, nil
 }
 
-func (can Canidates) ExplainSatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) (bool, string) {
+func (can Candidates) ExplainSatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) (bool, string) {
 	for _, possi := range depends.GetPossibilities(arch) {
 		can, why, _ := can.ExplainSatisfies(arch, possi)
 		if !can {
@@ -55,17 +55,17 @@ func (can Canidates) ExplainSatisfiesBuildDepends(arch dependency.Arch, depends 
 	return true, "All relations are a go"
 }
 
-func (can Canidates) SatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) bool {
+func (can Candidates) SatisfiesBuildDepends(arch dependency.Arch, depends dependency.Dependency) bool {
 	ret, _ := can.ExplainSatisfiesBuildDepends(arch, depends)
 	return ret
 }
 
-func (can Canidates) Satisfies(arch dependency.Arch, possi dependency.Possibility) bool {
+func (can Candidates) Satisfies(arch dependency.Arch, possi dependency.Possibility) bool {
 	ret, _, _ := can.ExplainSatisfies(arch, possi)
 	return ret
 }
 
-func (can Canidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Possibility) (bool, string, []control.BinaryIndex) {
+func (can Candidates) ExplainSatisfies(arch dependency.Arch, possi dependency.Possibility) (bool, string, []control.BinaryIndex) {
 	entries, ok := can[possi.Name]
 	if !ok { // no known entries in the Index
 		return false, fmt.Sprintf("Totally unknown package: %s", possi.Name), nil

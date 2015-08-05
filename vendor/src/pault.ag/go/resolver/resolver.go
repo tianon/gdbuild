@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-func GetBinaryIndex(mirror, suite, component, arch string) (*Canidates, error) {
-	can := Canidates{}
+func GetBinaryIndex(mirror, suite, component, arch string) (*Candidates, error) {
+	can := Candidates{}
 	err := AppendBinaryIndex(&can, mirror, suite, component, arch)
 	if err != nil {
 		return nil, err
@@ -15,7 +15,7 @@ func GetBinaryIndex(mirror, suite, component, arch string) (*Canidates, error) {
 	return &can, nil
 }
 
-func AppendBinaryIndex(can *Canidates, mirror, suite, component, arch string) error {
+func AppendBinaryIndex(can *Candidates, mirror, suite, component, arch string) error {
 	resp, err := http.Get(fmt.Sprintf(
 		"%s/dists/%s/%s/binary-%s/Packages.gz",
 		mirror, suite, component, arch,

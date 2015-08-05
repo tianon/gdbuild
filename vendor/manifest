@@ -74,7 +74,7 @@
 		{
 			"importpath": "pault.ag/go/resolver",
 			"repository": "git://github.com/paultag/go-resolver",
-			"revision": "5ae2c4347f6b5589fa8f37ba2862a87b1834cc43",
+			"revision": "91e78c2d6e6b7fa63b752985bcb3028697a69bd1",
 			"branch": "master"
 		},
 		{
