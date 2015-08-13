@@ -33,6 +33,21 @@ type Arch struct {
 	CPU string
 }
 
+func (a Arch) String() string {
+	/* ABI-OS-CPU -- gnu-linux-amd64 */
+	els := []string{}
+	if a.ABI != "any" && a.ABI != "all" && a.ABI != "gnu" {
+		els = append(els, a.ABI)
+	}
+
+	if a.OS != "any" && a.OS != "all" && a.OS != "linux" {
+		els = append(els, a.OS)
+	}
+
+	els = append(els, a.CPU)
+	return strings.Join(els, "-")
+}
+
 func ParseArchitectures(arch string) ([]Arch, error) {
 	ret := []Arch{}
 	arches := strings.Split(arch, " ")
@@ -52,15 +67,22 @@ func ParseArchitectures(arch string) ([]Arch, error) {
 	return ret, nil
 }
 
-/*
- */
+func (arch *Arch) UnmarshalControl(data string) error {
+	return parseArchInto(arch, data)
+}
+
 func ParseArch(arch string) (*Arch, error) {
 	ret := &Arch{
 		ABI: "any",
 		OS:  "any",
 		CPU: "any",
 	}
+	return ret, parseArchInto(ret, arch)
+}
 
+/*
+ */
+func parseArchInto(ret *Arch, arch string) error {
 	/* May be in the following form:
 	 * `any` (implicitly any-any-any)
 	 * kfreebsd-any (implicitly any-kfreebsd-any)
@@ -94,10 +116,10 @@ func ParseArch(arch string) (*Arch, error) {
 		ret.OS = flavors[1]
 		ret.CPU = flavors[2]
 	default:
-		return nil, errors.New("Hurm, no idea what happened here")
+		return errors.New("Hurm, no idea what happened here")
 	}
 
-	return ret, nil
+	return nil
 }
 
 /*
