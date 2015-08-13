@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/dependency"
@@ -13,14 +14,18 @@ import (
 func main() {
 	log.SetFlags(log.Lshortfile)
 
-	con, err := control.ParseControlFile("debian/control")
+	if len(os.Args) != 2 {
+		log.Fatalf("usage: %s something.dsc\n", os.Args[0])
+	}
+
+	dsc, err := control.ParseDscFile(os.Args[1])
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
 
+	// TODO parse this information from an image?  optional commandline parameters?
 	suite := "unstable"
 	arch := "amd64"
-
 	index, err := resolver.GetBinaryIndex(
 		"http://httpredir.debian.org/debian",
 		suite,
@@ -44,10 +49,7 @@ func main() {
 	allCan := true
 	allPossi := append(
 		buildEssential.GetPossibilities(*depArch),
-		append(
-			con.Source.BuildDepends.GetPossibilities(*depArch),
-			con.Source.BuildDependsIndep.GetPossibilities(*depArch)...,
-		)...,
+		dsc.BuildDepends.GetPossibilities(*depArch)...,
 	)
 	allBins := []control.BinaryIndex{}
 	for _, possi := range allPossi {
@@ -65,31 +67,49 @@ func main() {
 		log.Fatalf("Unsatisfied possi; exiting.\n")
 	}
 
-	err = os.MkdirAll("debian/tmp", 0777)
-	if err != nil {
-		log.Fatalf("error: %v\n", err)
-	}
+	dockerfile := fmt.Sprintf("FROM debian:%s\n", suite)
 
-	df, err := os.Create("debian/tmp/gdbuild-dockerfile")
-	defer df.Close()
-	if err != nil {
-		log.Fatalf("error: %v\n", err)
-	}
-
-	fmt.Fprintf(df, "FROM debian:%s\n", suite)
-
-	fmt.Fprintf(df, "RUN apt-get update && apt-get install -y --no-install-recommends \\\n")
+	dockerfile += `
+RUN apt-get update && apt-get install -y \
+` // --no-install-recommends
 	for _, pkg := range allBins {
-		fmt.Fprintf(df, "\t\t%s=%s \\\n", pkg.Package, pkg.Version)
+		dockerfile += fmt.Sprintf("\t\t%s=%s \\\n", pkg.Package, pkg.Version)
 	}
-	fmt.Fprintf(df, "\t&& rm -rf /var/lib/apt/lists/*\n")
+	dockerfile += "\t&& rm -rf /var/lib/apt/lists/*\n"
 
-	fmt.Fprintf(df, "WORKDIR /usr/src/pkg\n")
-	fmt.Fprintf(df, "COPY . /usr/src/pkg\n")
+	dockerfile += "\nWORKDIR /usr/src/pkg\n"
 
-	fmt.Fprintf(df, "RUN dpkg-buildpackage -uc -us\n")
+	origVersion := dsc.Version
+	origVersion.Revision = ""
+	origPrefix := fmt.Sprintf("%s_%s.orig", dsc.Source, origVersion)
+	dockerfile += fmt.Sprintf(`
+COPY %s*.tar.* /usr/src/
+RUN origPrefix=%q \
+	&& set -ex \
+	&& tar -xf "../$origPrefix".tar.* --strip-components=1 \
+	&& for orig in "../$origPrefix-"*.tar.*; do \
+		targetDir="$(basename "$orig")"; \
+		targetDir="${targetDir#$origPrefix-}" \
+		targetDir="${targetDir%%.tar.*}"; \
+		mkdir -p "$targetDir"; \
+		tar -xf "$orig" --strip-components=1 -C "$targetDir"; \
+	done
+`, origPrefix, origPrefix)
+	dockerfile += fmt.Sprintf("ADD %s_%s.debian.tar.* /usr/src/pkg/\n", dsc.Source, dsc.Version)
 
-	df.Close()
+	dockerfile += `
+RUN chown -R nobody:nogroup ..
+USER nobody:nogroup
+RUN dpkg-buildpackage -uc -us
+`
 
-	fmt.Printf("docker build -f %q .\n", df.Name())
+	files, err := filepath.Glob(fmt.Sprintf("%s_*.tar.*", dsc.Source))
+	if err != nil {
+		log.Fatalf("error: %v\n", err)
+	}
+
+	err = dockerBuild(fmt.Sprintf("debian/pkg-%s", dsc.Source), dockerfile, files...)
+	if err != nil {
+		log.Fatalf("error: %v\n", err)
+	}
 }
