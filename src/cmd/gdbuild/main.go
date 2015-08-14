@@ -68,6 +68,7 @@ func main() {
 	}
 
 	dockerfile := fmt.Sprintf("FROM debian:%s\n", suite)
+	// TODO allow this to instead be "FROM scratch\nADD some-chroot-tarball.tar.* /\n"
 
 	dockerfile += `
 RUN apt-get update && apt-get install -y \
