@@ -18,7 +18,9 @@ func main() {
 		log.Fatalf("usage: %s something.dsc\n", os.Args[0])
 	}
 
-	dsc, err := control.ParseDscFile(os.Args[1])
+	dscFile := os.Args[1]
+	dscDir := filepath.Dir(dscFile)
+	dsc, err := control.ParseDscFile(dscFile)
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
@@ -111,7 +113,7 @@ USER nobody:nogroup
 RUN dpkg-buildpackage -uc -us
 `
 
-	files, err := filepath.Glob(fmt.Sprintf("%s_*.tar.*", dsc.Source))
+	files, err := filepath.Glob(filepath.Join(dscDir, fmt.Sprintf("%s_*.tar.*", dsc.Source)))
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
