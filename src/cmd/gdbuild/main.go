@@ -79,10 +79,16 @@ RUN apt-get update && apt-get install -y \
 
 	dockerfile += "\nWORKDIR /usr/src/pkg\n"
 
-	origVersion := dsc.Version
-	origVersion.Revision = ""
-	origPrefix := fmt.Sprintf("%s_%s.orig", dsc.Source, origVersion)
-	dockerfile += fmt.Sprintf(`
+	if dsc.Version.IsNative() {
+		dockerfile += fmt.Sprintf(`
+COPY %s_%s.tar.* /usr/src/
+RUN tar -xf "../%s_%s".tar.* --strip-components=1
+`, dsc.Source, dsc.Version, dsc.Source, dsc.Version)
+	} else {
+		origVersion := dsc.Version
+		origVersion.Revision = ""
+		origPrefix := fmt.Sprintf("%s_%s.orig", dsc.Source, origVersion)
+		dockerfile += fmt.Sprintf(`
 COPY %s*.tar.* /usr/src/
 RUN origPrefix=%q \
 	&& set -ex \
@@ -95,7 +101,8 @@ RUN origPrefix=%q \
 		tar -xf "$orig" --strip-components=1 -C "$targetDir"; \
 	done
 `, origPrefix, origPrefix)
-	dockerfile += fmt.Sprintf("ADD %s_%s.debian.tar.* /usr/src/pkg/\n", dsc.Source, dsc.Version)
+		dockerfile += fmt.Sprintf("ADD %s_%s.debian.tar.* /usr/src/pkg/\n", dsc.Source, dsc.Version)
+	}
 
 	dockerfile += `
 RUN chown -R nobody:nogroup ..
