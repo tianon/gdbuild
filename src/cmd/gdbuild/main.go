@@ -80,46 +80,31 @@ RUN apt-get update && apt-get install -y \
 	}
 	dockerfile += "\t&& rm -rf /var/lib/apt/lists/*\n"
 
-	dockerfile += "\nWORKDIR /usr/src/pkg\n"
-
-	if dsc.Version.IsNative() {
-		dockerfile += fmt.Sprintf(`
-COPY %s_%s.tar.* /usr/src/
-RUN tar -xf "../%s_%s".tar.* --strip-components=1
-`, dsc.Source, dsc.Version, dsc.Source, dsc.Version)
-	} else {
-		origVersion := dsc.Version
-		origVersion.Revision = ""
-		origPrefix := fmt.Sprintf("%s_%s.orig", dsc.Source, origVersion)
-		dockerfile += fmt.Sprintf(`
-COPY %s*.tar.* /usr/src/
-RUN origPrefix=%q \
-	&& set -ex \
-	&& tar -xf "../$origPrefix".tar.* --strip-components=1 \
-	&& for orig in "../$origPrefix-"*.tar.*; do \
-		targetDir="$(basename "$orig")"; \
-		targetDir="${targetDir#$origPrefix-}" \
-		targetDir="${targetDir%%.tar.*}"; \
-		mkdir -p "$targetDir"; \
-		tar -xf "$orig" --strip-components=1 -C "$targetDir"; \
-	done
-`, origPrefix, origPrefix)
-		dockerfile += fmt.Sprintf("ADD %s_%s.debian.tar.* /usr/src/pkg/\n", dsc.Source, dsc.Version)
+	files := []string{dsc.Filename}
+	for _, f := range dsc.Files {
+		files = append(files, filepath.Join(dscDir, f.Filename))
 	}
 
-	dockerfile += `
-RUN chown -R nobody:nogroup ..
+	dockerfile += "COPY"
+	for _, f := range files {
+		dockerfile += " " + filepath.Base(f)
+	}
+	dockerfile += " /usr/src/.in/\n"
+
+	dockerfile += fmt.Sprintf(`
+WORKDIR /usr/src
+RUN chown -R nobody:nogroup .
 USER nobody:nogroup
-RUN dpkg-buildpackage -uc -us
-`
+RUN dpkg-source -x %q %q
+RUN cd %q && dpkg-buildpackage -uc -us
+`, ".in/"+filepath.Base(dsc.Filename), dsc.Source, dsc.Source)
 
-	files, err := filepath.Glob(filepath.Join(dscDir, fmt.Sprintf("%s_*.tar.*", dsc.Source)))
+
+	img := fmt.Sprintf("debian/pkg-%s", dsc.Source)
+	err = dockerBuild(img, dockerfile, files...)
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
 
-	err = dockerBuild(fmt.Sprintf("debian/pkg-%s", dsc.Source), dockerfile, files...)
-	if err != nil {
-		log.Fatalf("error: %v\n", err)
-	}
+	fmt.Printf("\n%q from %q successfully built and available in Docker image %q\n\n", dsc.Source, dscFile, img)
 }
