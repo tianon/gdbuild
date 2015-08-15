@@ -25,6 +25,12 @@ func main() {
 		log.Fatalf("error: %v\n", err)
 	}
 
+	if ok, err := dsc.Validate(); err != nil {
+		log.Fatalf("error, validation failed: %v\n", err)
+	} else if !ok {
+		log.Fatalf("validation failed!\n")
+	}
+
 	// TODO parse this information from an image?  optional commandline parameters?
 	suite := "unstable"
 	arch := "amd64"

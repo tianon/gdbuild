@@ -53,7 +53,7 @@
 		{
 			"importpath": "pault.ag/go/debian/control",
 			"repository": "git://github.com/paultag/go-debian",
-			"revision": "b1eba5f2b65277e74fc8ecac345e9d093d5cf4fa",
+			"revision": "b45fa060325a3942f4503154b73274718619d587",
 			"branch": "master",
 			"path": "/control"
 		},
