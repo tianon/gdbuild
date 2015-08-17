@@ -25,10 +25,8 @@ func main() {
 		log.Fatalf("error: %v\n", err)
 	}
 
-	if ok, err := dsc.Validate(); err != nil {
+	if err := dsc.Validate(); err != nil {
 		log.Fatalf("error, validation failed: %v\n", err)
-	} else if !ok {
-		log.Fatalf("validation failed!\n")
 	}
 
 	// TODO parse this information from an image?  optional commandline parameters?
@@ -104,7 +102,6 @@ USER nobody:nogroup
 RUN dpkg-source -x %q %q
 RUN cd %q && dpkg-buildpackage -uc -us
 `, ".in/"+filepath.Base(dsc.Filename), dsc.Source, dsc.Source)
-
 
 	img := fmt.Sprintf("debian/pkg-%s", dsc.Source)
 	err = dockerBuild(img, dockerfile, files...)

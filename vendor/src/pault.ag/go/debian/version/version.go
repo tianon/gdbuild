@@ -26,7 +26,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. }}} */
 
-// dpkgversion is a pure-go implementation of dpkg version string functions
+// version is a pure-go implementation of dpkg version string functions
 // (parsing, comparison) which is compatible with dpkg(1).
 package version
 
@@ -36,6 +36,21 @@ import (
 	"strings"
 	"unicode"
 )
+
+// Slice is a slice versions, satisfying sort.Interface
+type Slice []Version
+
+func (a Slice) Len() int {
+	return len(a)
+}
+
+func (a Slice) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+
+func (a Slice) Less(i, j int) bool {
+	return Compare(a[i], a[j]) < 0
+}
 
 type Version struct {
 	Epoch    uint
