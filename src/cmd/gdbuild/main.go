@@ -1,7 +1,10 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,6 +13,22 @@ import (
 	"pault.ag/go/debian/dependency"
 	"pault.ag/go/resolver"
 )
+
+func md5sum(path string) (string, error) {
+	algo := md5.New()
+
+	f, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	if _, err := io.Copy(algo, f); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(algo.Sum(nil)), nil
+}
 
 func main() {
 	log.SetFlags(log.Lshortfile)
@@ -28,6 +47,12 @@ func main() {
 	if err := dsc.Validate(); err != nil {
 		log.Fatalf("error, validation failed: %v\n", err)
 	}
+
+	dscMd5, err := md5sum(dscFile)
+	if err != nil {
+		log.Fatalf("error: %v\n", err)
+	}
+	img := fmt.Sprintf("debian/pkg-%s:%s", dsc.Source, dscMd5)
 
 	// TODO parse this information from an image?  optional commandline parameters?
 	suite := "unstable"
@@ -103,7 +128,6 @@ RUN dpkg-source -x %q %q
 RUN cd %q && dpkg-buildpackage -uc -us
 `, ".in/"+filepath.Base(dsc.Filename), dsc.Source, dsc.Source)
 
-	img := fmt.Sprintf("debian/pkg-%s", dsc.Source)
 	err = dockerBuild(img, dockerfile, files...)
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
