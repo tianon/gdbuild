@@ -4,77 +4,77 @@
 		{
 			"importpath": "golang.org/x/crypto/cast5",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "173ce04bfaf66c7bb0fa9d5c0bfd93e773909dbd",
+			"revision": "c16968172724c0b5e8bdc6ad33f5a79443a44cd7",
 			"branch": "master",
 			"path": "/cast5"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/armor",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "173ce04bfaf66c7bb0fa9d5c0bfd93e773909dbd",
+			"revision": "c16968172724c0b5e8bdc6ad33f5a79443a44cd7",
 			"branch": "master",
 			"path": "/openpgp/armor"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/clearsign",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "173ce04bfaf66c7bb0fa9d5c0bfd93e773909dbd",
+			"revision": "c16968172724c0b5e8bdc6ad33f5a79443a44cd7",
 			"branch": "master",
 			"path": "/openpgp/clearsign"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/elgamal",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "173ce04bfaf66c7bb0fa9d5c0bfd93e773909dbd",
+			"revision": "c16968172724c0b5e8bdc6ad33f5a79443a44cd7",
 			"branch": "master",
 			"path": "/openpgp/elgamal"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/errors",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "173ce04bfaf66c7bb0fa9d5c0bfd93e773909dbd",
+			"revision": "c16968172724c0b5e8bdc6ad33f5a79443a44cd7",
 			"branch": "master",
 			"path": "/openpgp/errors"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/packet",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "173ce04bfaf66c7bb0fa9d5c0bfd93e773909dbd",
+			"revision": "c16968172724c0b5e8bdc6ad33f5a79443a44cd7",
 			"branch": "master",
 			"path": "/openpgp/packet"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/s2k",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "173ce04bfaf66c7bb0fa9d5c0bfd93e773909dbd",
+			"revision": "c16968172724c0b5e8bdc6ad33f5a79443a44cd7",
 			"branch": "master",
 			"path": "/openpgp/s2k"
 		},
 		{
 			"importpath": "pault.ag/go/debian/control",
 			"repository": "git://github.com/paultag/go-debian",
-			"revision": "4d2b58f96304c6f0f1b3bee39bfc1836ae22c85f",
+			"revision": "0eea1192dd35b63f3eb00cdc897cd97e156fe51d",
 			"branch": "master",
 			"path": "/control"
 		},
 		{
 			"importpath": "pault.ag/go/debian/dependency",
 			"repository": "git://github.com/paultag/go-debian",
-			"revision": "4d2b58f96304c6f0f1b3bee39bfc1836ae22c85f",
+			"revision": "0eea1192dd35b63f3eb00cdc897cd97e156fe51d",
 			"branch": "master",
 			"path": "/dependency"
 		},
 		{
 			"importpath": "pault.ag/go/debian/internal",
 			"repository": "git://github.com/paultag/go-debian",
-			"revision": "4d2b58f96304c6f0f1b3bee39bfc1836ae22c85f",
+			"revision": "0eea1192dd35b63f3eb00cdc897cd97e156fe51d",
 			"branch": "master",
 			"path": "/internal"
 		},
 		{
 			"importpath": "pault.ag/go/debian/version",
 			"repository": "git://github.com/paultag/go-debian",
-			"revision": "4d2b58f96304c6f0f1b3bee39bfc1836ae22c85f",
+			"revision": "0eea1192dd35b63f3eb00cdc897cd97e156fe51d",
 			"branch": "master",
 			"path": "/version"
 		},
