@@ -72,7 +72,7 @@ func main() {
 		log.Fatalf("error: %v\n", err)
 	}
 
-	buildEssential, err := dependency.Parse("build-essential")
+	buildEssential, err := dependency.Parse("build-essential, dpkg-dev, fakeroot")
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
@@ -102,7 +102,7 @@ func main() {
 	// TODO allow this to instead be "FROM scratch\nADD some-chroot-tarball.tar.* /\n"
 
 	dockerfile += `
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
 ` // --no-install-recommends
 	for _, pkg := range allBins {
 		dockerfile += fmt.Sprintf("\t\t%s=%s \\\n", pkg.Package, pkg.Version)
