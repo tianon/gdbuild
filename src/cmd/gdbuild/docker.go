@@ -34,22 +34,27 @@ func dockerBuild(tag string, dockerfile string, files ...string) error {
 	defer tw.Close()
 
 	if err := AddStringToTar(tw, dockerfileFile, dockerfile); err != nil {
+		cmd.Process.Kill()
 		return err
 	}
 	if err := tw.Flush(); err != nil {
+		cmd.Process.Kill()
 		return err
 	}
 
 	for _, file := range files {
 		if err := AddFileToTar(tw, filepath.Base(file), file); err != nil {
+			cmd.Process.Kill()
 			return err
 		}
 		if err := tw.Flush(); err != nil {
+			cmd.Process.Kill()
 			return err
 		}
 	}
 
 	if err := tw.Close(); err != nil {
+		cmd.Process.Kill()
 		return err
 	}
 
