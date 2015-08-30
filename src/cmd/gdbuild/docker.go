@@ -10,7 +10,13 @@ import (
 //var dockerApiVersion = "1.18" // https://github.com/docker/docker/blob/v1.6.2/api/common.go#L18
 
 func dockerBuild(tag string, dockerfile string, files ...string) error {
-	cmd := exec.Command("docker", "build", "-t", tag, "-")
+	dockerfileMd5, err := md5string(dockerfile)
+	if err != nil {
+		return err
+	}
+	dockerfileFile := ".dockerfile." + dockerfileMd5
+
+	cmd := exec.Command("docker", "build", "-f", dockerfileFile, "-t", tag, "-")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -27,7 +33,7 @@ func dockerBuild(tag string, dockerfile string, files ...string) error {
 	tw := tar.NewWriter(stdin)
 	defer tw.Close()
 
-	if err := AddStringToTar(tw, "Dockerfile", dockerfile); err != nil {
+	if err := AddStringToTar(tw, dockerfileFile, dockerfile); err != nil {
 		return err
 	}
 	if err := tw.Flush(); err != nil {

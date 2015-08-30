@@ -22,3 +22,13 @@ func md5sum(path string) (string, error) {
 
 	return hex.EncodeToString(algo.Sum(nil)), nil
 }
+
+func md5string(str string) (string, error) {
+	algo := md5.New()
+
+	if _, err := algo.Write([]byte(str)); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(algo.Sum(nil)), nil
+}
