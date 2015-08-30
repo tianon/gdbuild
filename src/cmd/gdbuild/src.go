@@ -14,7 +14,7 @@ var tarballDirs = []string{
 	"..",
 }
 
-func buildSrc(dir string) (control.Control, string) {
+func buildSrc(dir string) (control.Control, changelog.ChangelogEntry, string) {
 	con, err := control.ParseControlFile(filepath.Join(dir, "debian/control"))
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
@@ -117,7 +117,5 @@ RUN (cd pkg && dpkg-buildpackage -uc -us -S -nc) && mkdir -p .out && ln %s .out/
 		log.Fatalf("error: %v\n", err)
 	}
 
-	log.Fatal("TODO build the source dsc")
-
-	return *con, ""
+	return *con, *chg, img
 }

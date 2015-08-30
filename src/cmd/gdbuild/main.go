@@ -21,11 +21,11 @@ func main() {
 			log.Fatalf("error: %v\n", err)
 		}
 		if fi.IsDir() {
-			buildSrc(arg)
-			// TODO extract the output and buildBin it
+			con, chg, img := buildSrc(arg)
+			fmt.Printf("\n- %q (%q) source DSC built in %q\n\n", con.Source.Source, chg.Version, img)
 		} else {
 			dsc, img := buildBin(arg)
-			fmt.Printf("\n- %q built in %q\n\n", dsc.Source, img)
+			fmt.Printf("\n- %q (%q) built in %q\n\n", dsc.Source, dsc.Version, img)
 		}
 	}
 }
