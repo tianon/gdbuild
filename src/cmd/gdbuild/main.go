@@ -14,7 +14,15 @@ func main() {
 	}
 
 	for _, arg := range os.Args[1:] {
-		dsc, img := buildBin(arg)
-		fmt.Printf("\n- %q built in %q\n\n", dsc.Source, img)
+		fi, err := os.Stat(arg)
+		if err != nil {
+			log.Fatalf("error: %v\n", err)
+		}
+		if fi.IsDir() {
+			buildSrc(arg)
+		} else {
+			dsc, img := buildBin(arg)
+			fmt.Printf("\n- %q built in %q\n\n", dsc.Source, img)
+		}
 	}
 }
