@@ -14,7 +14,7 @@ func dockerBuild(tag string, dockerfile string, files ...string) error {
 	if err != nil {
 		return err
 	}
-	dockerfileFile := ".dockerfile." + dockerfileMd5
+	dockerfileFile := ".gdbuild-dockerfile." + dockerfileMd5
 
 	cmd := exec.Command("docker", "build", "-f", dockerfileFile, "-t", tag, "-")
 	cmd.Stdout = os.Stdout

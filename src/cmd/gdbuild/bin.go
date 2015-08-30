@@ -97,9 +97,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /usr/src
 RUN chown -R nobody:nogroup .
 USER nobody:nogroup
-RUN dpkg-source -x %q %q
-RUN cd %q && dpkg-buildpackage -uc -us
-`, ".in/"+filepath.Base(dsc.Filename), dsc.Source, dsc.Source)
+RUN dpkg-source -x %q pkg
+RUN (cd pkg && dpkg-buildpackage -uc -us) && mkdir .out && ln %q_* .out/
+WORKDIR /usr/src/.out
+`, ".in/"+filepath.Base(dsc.Filename), dsc.Source)
 
 	err = dockerBuild(img, dockerfile, files...)
 	if err != nil {
