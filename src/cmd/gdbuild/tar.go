@@ -28,7 +28,7 @@ func AddStringToTar(tw *tar.Writer, name, file string) error {
 }
 
 func AddFileToTar(tw *tar.Writer, name, file string) error {
-	fi, err := os.Stat(file)
+	fi, err := os.Lstat(file)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,15 @@ func AddFileToTar(tw *tar.Writer, name, file string) error {
 		return nil
 	}
 
-	hdr, err := tar.FileInfoHeader(fi, "")
+	linkTarget := ""
+	if fi.Mode()&os.ModeSymlink != 0 {
+		linkTarget, err = os.Readlink(file)
+		if err != nil {
+			return err
+		}
+	}
+
+	hdr, err := tar.FileInfoHeader(fi, linkTarget)
 	if err != nil {
 		return err
 	}
@@ -63,15 +71,17 @@ func AddFileToTar(tw *tar.Writer, name, file string) error {
 		return err
 	}
 
-	fh, err := os.Open(file)
-	if err != nil {
-		return err
-	}
-	defer fh.Close()
+	if fi.Mode().IsRegular() {
+		fh, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer fh.Close()
 
-	_, err = io.Copy(tw, fh)
-	if err != nil {
-		return err
+		_, err = io.Copy(tw, fh)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
