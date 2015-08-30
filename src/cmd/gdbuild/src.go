@@ -28,6 +28,8 @@ func buildSrc(dir string) (control.Control, string) {
 	img := fmt.Sprintf("gdbuild/src:%s", con.Source.Source)
 
 	dockerfile := "FROM debian:unstable\n"
+	// TODO allow this to instead be "FROM scratch\nADD some-chroot-tarball.tar.* /\n"
+
 	dockerfile += `
 RUN apt-get update && apt-get install -y --no-install-recommends \
 		dpkg-dev \
