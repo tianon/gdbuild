@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"io"
 	"os"
+	"path/filepath"
 	"syscall"
 )
 
@@ -30,6 +31,26 @@ func AddFileToTar(tw *tar.Writer, name, file string) error {
 	fi, err := os.Stat(file)
 	if err != nil {
 		return err
+	}
+
+	if fi.IsDir() {
+		err = filepath.Walk(file, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				return nil
+			}
+			subPath, err := filepath.Rel(file, path)
+			if err != nil {
+				return err
+			}
+			return AddFileToTar(tw, name+"/"+subPath, path)
+		})
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	hdr, err := tar.FileInfoHeader(fi, "")
