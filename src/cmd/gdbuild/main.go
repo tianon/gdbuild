@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func main() {
@@ -20,12 +21,20 @@ func main() {
 		if err != nil {
 			log.Fatalf("error: %v\n", err)
 		}
+
 		if fi.IsDir() {
 			con, chg, img := buildSrc(arg)
 			fmt.Printf("\n- %q (%q) source DSC built in %q\n\n", con.Source.Source, chg.Version, img)
-		} else {
-			dsc, img := buildBin(arg)
-			fmt.Printf("\n- %q (%q) built in %q\n\n", dsc.Source, dsc.Version, img)
+
+			dir, err := dockerCpTmp(img, "/usr/src/.out")
+			if err != nil {
+				log.Fatalf("error: %v\n", err)
+			}
+			defer os.RemoveAll(dir)
+			arg = filepath.Join(dir, ".out", fmt.Sprintf("%s_%s.dsc", con.Source.Source, chg.Version))
 		}
+
+		dsc, img := buildBin(arg)
+		fmt.Printf("\n- %q (%q) built in %q\n\n", dsc.Source, dsc.Version, img)
 	}
 }
