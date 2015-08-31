@@ -99,7 +99,6 @@ RUN chown -R nobody:nogroup .
 USER nobody:nogroup
 RUN dpkg-source -x %q pkg
 RUN (cd pkg && dpkg-buildpackage -uc -us) && mkdir .out && ln %q_* .out/
-WORKDIR /usr/src/.out
 `, ".in/"+filepath.Base(dsc.Filename), dsc.Source)
 
 	err = dockerBuild(img, dockerfile, files...)
