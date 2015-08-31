@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"regexp"
 
 	"pault.ag/go/debian/changelog"
 	"pault.ag/go/debian/control"
@@ -36,6 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src
+
 `
 	files := []string{}
 
@@ -78,22 +80,21 @@ WORKDIR /usr/src
 		dockerfile += " /usr/src/.out/\n"
 		dockerfile += fmt.Sprintf("RUN ln -s .out/%q.tar.* .out/%q-*.tar.* ./\n", origBase, origBase)
 
-		dockerfile += "COPY debian /usr/src/pkg/debian\n"
+		dockerfile += "\n# origtargz --unpack\n"
+		re := regexp.MustCompile(fmt.Sprintf(`^%s(?:-(.*))?\.tar\..*$`, regexp.QuoteMeta(origBase)))
+		dockerfile += "RUN set -ex"
+		for _, f := range origs {
+			orig := filepath.Base(f)
+			targetDir := "pkg"
+			matches := re.FindStringSubmatch(orig)
+			if matches != nil && matches[1] != "" {
+				targetDir += "/" + matches[1]
+			}
+			dockerfile += fmt.Sprintf(" \\\n\t&& mkdir %q && tar -xC %q -f %q --strip-components=1", targetDir, targetDir, orig)
+		}
+		dockerfile += "\n"
 
-		dockerfile += fmt.Sprintf(`
-# origtargz --unpack
-RUN set -ex \
-	&& origBase=%q \
-	&& cd pkg \
-	&& tar -xf "../$origBase".tar.* --strip-components=1 \
-	&& for orig in "../$origBase-"*.tar.*; do \
-		targetDir="$(basename "$orig")"; \
-		targetDir="${targetDir#$origBase-}" \
-		targetDir="${targetDir%%.tar.*}"; \
-		mkdir -p "$targetDir"; \
-		tar -xf "$orig" --strip-components=1 -C "$targetDir"; \
-	done
-`, origBase)
+		dockerfile += "\nCOPY debian /usr/src/pkg/debian\n"
 	} else {
 		absDir, err := filepath.Abs(dir)
 		if err != nil {
