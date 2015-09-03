@@ -10,6 +10,14 @@ import (
 	"pault.ag/go/resolver"
 )
 
+func binSatPossi(depArch *dependency.Arch, bin control.BinaryIndex, possi dependency.Possibility) bool {
+	return !possi.Substvar &&
+		(possi.Architectures == nil || possi.Architectures.Matches(depArch)) &&
+		possi.Name == bin.Package &&
+		(possi.Arch == nil || possi.Arch.Is(&bin.Architecture)) &&
+		(possi.Version == nil || possi.Version.SatisfiedBy(bin.Version))
+}
+
 func buildBin(dscFile string) (control.DSC, string) {
 	dscDir := filepath.Dir(dscFile)
 	dsc, err := control.ParseDscFile(dscFile)
@@ -51,24 +59,52 @@ func buildBin(dscFile string) (control.DSC, string) {
 	}
 
 	allCan := true
-	allPossi := append(
-		buildEssential.GetPossibilities(*depArch),
-		dsc.BuildDepends.GetPossibilities(*depArch)...,
-	)
-	allBins := []control.BinaryIndex{}
-	for _, possi := range allPossi {
-		can, why, bins := index.ExplainSatisfies(*depArch, possi)
-		if !can {
-			log.Printf("%s: %s\n", possi.Name, why)
+	bins := map[string]control.BinaryIndex{}
+	binsSlice := []string{} // ugh Go
+RelLoop:
+	for _, rel := range append(buildEssential.Relations, dsc.BuildDepends.Relations...) {
+		canRel := false
+		for _, possi := range rel.Possibilities {
+			if possi.Substvar {
+				continue
+			}
+			if bin, ok := bins[possi.Name]; ok && binSatPossi(depArch, bin, possi) {
+				continue RelLoop
+			}
+		}
+	PossiLoop:
+		for _, possi := range rel.Possibilities {
+			if possi.Substvar {
+				continue
+			}
+			entries, ok := map[string][]control.BinaryIndex(*index)[possi.Name]
+			if !ok {
+				continue
+			}
+			for _, bin := range entries {
+				if binSatPossi(depArch, bin, possi) {
+					if existBin, ok := bins[bin.Package]; ok {
+						log.Printf("uh oh, already chose %s=%s but want %s=%s for %q\n", existBin.Package, existBin.Version, bin.Package, bin.Version, possi)
+						continue PossiLoop
+					}
+					bins[bin.Package] = bin
+					binsSlice = append(binsSlice, bin.Package)
+					canRel = true
+					break PossiLoop
+				}
+			}
+		}
+		if !canRel {
+			log.Printf("warning: unable to satisfy %q\n", rel)
 			allCan = false
-		} else {
-			// TODO more smarts for which dep out of bins to use
-			allBins = append(allBins, bins[0])
 		}
 	}
 
 	if !allCan {
-		log.Fatalf("Unsatisfied possi; exiting.\n")
+		//log.Fatalf("Unsatisfied possi; exiting.\n")
+		log.Println()
+		log.Println("WARNING: Unsatisfied possi!")
+		log.Println()
 	}
 
 	dockerfile := fmt.Sprintf("FROM debian:%s\n", suite)
@@ -77,7 +113,7 @@ func buildBin(dscFile string) (control.DSC, string) {
 	dockerfile += `
 RUN apt-get update && apt-get install -y --no-install-recommends \
 ` // --no-install-recommends
-	for _, pkg := range allBins {
+	for _, pkg := range bins {
 		dockerfile += fmt.Sprintf("\t\t%s=%s \\\n", pkg.Package, pkg.Version)
 	}
 	dockerfile += "\t&& rm -rf /var/lib/apt/lists/*\n"
@@ -98,7 +134,7 @@ WORKDIR /usr/src
 RUN chown -R nobody:nogroup .
 USER nobody:nogroup
 RUN dpkg-source -x %q pkg
-RUN (cd pkg && dpkg-buildpackage -uc -us) && mkdir .out && ln %q_* .out/
+RUN (cd pkg && dpkg-buildpackage -uc -us -d) && mkdir .out && ln %q_* .out/
 `, ".in/"+filepath.Base(dsc.Filename), dsc.Source)
 
 	err = dockerBuild(img, dockerfile, files...)
