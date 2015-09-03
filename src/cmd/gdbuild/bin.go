@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"sort"
 
 	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/dependency"
@@ -99,6 +100,7 @@ RelLoop:
 			allCan = false
 		}
 	}
+	sort.Strings(binsSlice)
 
 	if !allCan {
 		//log.Fatalf("Unsatisfied possi; exiting.\n")
@@ -113,8 +115,9 @@ RelLoop:
 	dockerfile += `
 RUN apt-get update && apt-get install -y --no-install-recommends \
 ` // --no-install-recommends
-	for _, pkg := range bins {
-		dockerfile += fmt.Sprintf("\t\t%s=%s \\\n", pkg.Package, pkg.Version)
+	for _, pkg := range binsSlice {
+		bin := bins[pkg]
+		dockerfile += fmt.Sprintf("\t\t%s=%s \\\n", bin.Package, bin.Version)
 	}
 	dockerfile += "\t&& rm -rf /var/lib/apt/lists/*\n"
 
