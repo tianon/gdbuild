@@ -31,7 +31,9 @@ func main() {
 				log.Fatalf("error: %v\n", err)
 			}
 			defer os.RemoveAll(dir)
-			arg = filepath.Join(dir, ".out", fmt.Sprintf("%s_%s.dsc", con.Source.Source, chg.Version))
+			outVer := chg.Version
+			outVer.Epoch = 0
+			arg = filepath.Join(dir, ".out", fmt.Sprintf("%s_%s.dsc", con.Source.Source, outVer))
 		}
 
 		dsc, img := buildBin(arg)

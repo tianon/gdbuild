@@ -104,7 +104,9 @@ WORKDIR /usr/src
 		dockerfile += fmt.Sprintf("COPY %s /usr/src/pkg\n", filepath.Base(absDir))
 	}
 
-	pkgVer := con.Source.Source + "_" + chg.Version.String()
+	outVer := chg.Version
+	outVer.Epoch = 0
+	pkgVer := con.Source.Source + "_" + outVer.String()
 	links := fmt.Sprintf("%q %q", pkgVer+".dsc", pkgVer+"_source.changes")
 	if !chg.Version.IsNative() {
 		links += fmt.Sprintf(" %q.*", pkgVer+".debian.tar")
