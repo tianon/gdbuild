@@ -112,6 +112,17 @@ RelLoop:
 	dockerfile := fmt.Sprintf("FROM debian:%s\n", suite)
 	// TODO allow this to instead be "FROM scratch\nADD some-chroot-tarball.tar.* /\n"
 
+	// see https://sources.debian.net/src/pbuilder/jessie/pbuilder-modules/#L306
+	// and https://sources.debian.net/src/pbuilder/jessie/pbuilder-modules/#L408
+	dockerfile += `
+# setup environment configuration
+RUN { echo '#!/bin/sh'; echo 'exit 101'; } > /usr/sbin/policy-rc.d \
+	&& chmod +x /usr/sbin/policy-rc.d
+RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/15gdbuild
+`
+
+	// TODO setup sources.list explicitly -- don't trust the tarball/base image
+
 	dockerfile += `
 RUN apt-get update && apt-get install -y --no-install-recommends \
 ` // --no-install-recommends
