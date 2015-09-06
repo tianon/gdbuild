@@ -85,6 +85,10 @@ func dockerBuild(tag string, dockerfile string, files ...string) error {
 		cmd.Process.Kill()
 		return err
 	}
+	if err := stdin.Close(); err != nil {
+		cmd.Process.Kill()
+		return err
+	}
 
 	return cmd.Wait()
 }
