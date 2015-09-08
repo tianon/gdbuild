@@ -124,7 +124,7 @@ RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/15gdbuild
 	// TODO setup sources.list explicitly -- don't trust the tarball/base image
 
 	dockerfile += `
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y \
 ` // --no-install-recommends
 	for _, pkg := range binsSlice {
 		bin := bins[pkg]
