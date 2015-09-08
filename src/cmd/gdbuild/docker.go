@@ -45,7 +45,7 @@ func dockerBuild(tag string, dockerfile string, files ...string) error {
 	}
 	dockerfileFile := ".gdbuild-dockerfile." + dockerfileMd5
 
-	cmd := docker("build", "-f", dockerfileFile, "-t", tag, "-")
+	cmd := docker("build", "--rm", "--force-rm", "-f", dockerfileFile, "-t", tag, "-")
 	cmd.Stdout = os.Stdout
 
 	stdin, err := cmd.StdinPipe()
