@@ -112,6 +112,10 @@ WORKDIR /usr/src
 		links += fmt.Sprintf(" %q.*", pkgVer+".debian.tar")
 	}
 	dockerfile += fmt.Sprintf(`
+# work around overlayfs issues (data inconsistency issues; see https://github.com/docker/docker/issues/10180)
+VOLUME /usr/src/pkg
+# rm: cannot remove 'pkg/.pc/xyz.patch': Directory not empty
+
 RUN (cd pkg && dpkg-buildpackage -uc -us -S -nc) && mkdir -p .out && ln %s .out/
 `, links)
 
