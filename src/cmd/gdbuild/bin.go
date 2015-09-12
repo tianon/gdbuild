@@ -132,7 +132,8 @@ RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/15gdbuild
 	// setup sources.list explicitly -- don't trust the tarball/base image
 	dockerfile += fmt.Sprintf(`
 # setup sources.list
-RUN echo %q > /etc/apt/sources.list
+RUN echo %q > /etc/apt/sources.list \
+	&& find /etc/apt/sources.list.d -type f -exec rm '{}' +
 `, sources.ListString())
 
 	dockerfile += `
