@@ -6,9 +6,10 @@ import (
 	"path/filepath"
 	"sort"
 
+	"apt-sources"
+
 	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/dependency"
-	"pault.ag/go/resolver"
 )
 
 func binSatPossi(depArch *dependency.Arch, bin control.BinaryIndex, possi dependency.Possibility) bool {
@@ -39,12 +40,19 @@ func buildBin(dscFile string) (control.DSC, string) {
 	// TODO parse this information from an image?  optional commandline parameters?
 	suite := "unstable"
 	arch := "amd64"
-	index, err := resolver.GetBinaryIndex(
-		"http://httpredir.debian.org/debian",
-		suite,
-		"main",
-		arch,
-	)
+	sources := sources.New(sources.Source{
+		Types:      []string{"deb"},
+		URIs:       []string{"http://httpredir.debian.org/debian"},
+		Suites:     []string{suite},
+		Components: []string{"main"},
+	}, sources.Source{
+		Types:      []string{"deb"},
+		URIs:       []string{"http://incoming.debian.org/debian-buildd"},
+		Suites:     []string{"buildd-" + suite},
+		Components: []string{"main"},
+	})
+
+	index, err := sources.FetchCandidates(arch)
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
 	}
@@ -121,7 +129,11 @@ RUN { echo '#!/bin/sh'; echo 'exit 101'; } > /usr/sbin/policy-rc.d \
 RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/15gdbuild
 `
 
-	// TODO setup sources.list explicitly -- don't trust the tarball/base image
+	// setup sources.list explicitly -- don't trust the tarball/base image
+	dockerfile += fmt.Sprintf(`
+# setup sources.list
+RUN echo %q > /etc/apt/sources.list
+`, sources.ListString())
 
 	dockerfile += `
 RUN apt-get update && apt-get install -y \
