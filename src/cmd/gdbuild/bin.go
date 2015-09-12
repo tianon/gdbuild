@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"apt-sources"
+	aptSources "apt-sources"
 
 	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/dependency"
@@ -39,14 +39,10 @@ func buildBin(dscFile string) (control.DSC, string) {
 
 	// TODO parse this information from an image?  optional commandline parameters?
 	suite := "unstable"
+	sources := aptSources.SuiteSources(suite, "main")
 	arch := "amd64"
-	sources := sources.New(sources.Source{
-		Types:      []string{"deb"},
-		URIs:       []string{"http://httpredir.debian.org/debian"},
-		Suites:     []string{suite},
-		Components: []string{"main"},
-	}, sources.Source{
-		Types:      []string{"deb"},
+	sources = sources.Append(aptSources.Source{
+		Types:      []string{"deb", "deb-src"},
 		URIs:       []string{"http://incoming.debian.org/debian-buildd"},
 		Suites:     []string{"buildd-" + suite},
 		Components: []string{"main"},
