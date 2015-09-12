@@ -53,35 +53,35 @@
 		{
 			"importpath": "pault.ag/go/debian/changelog",
 			"repository": "https://github.com/paultag/go-debian",
-			"revision": "93910438ce23714cd068039f0f38d8636a33c015",
+			"revision": "16a7ca22a712d5ae233e8be4e0556dad17b944c7",
 			"branch": "master",
 			"path": "/changelog"
 		},
 		{
 			"importpath": "pault.ag/go/debian/control",
 			"repository": "https://github.com/paultag/go-debian",
-			"revision": "93910438ce23714cd068039f0f38d8636a33c015",
+			"revision": "16a7ca22a712d5ae233e8be4e0556dad17b944c7",
 			"branch": "master",
 			"path": "/control"
 		},
 		{
 			"importpath": "pault.ag/go/debian/dependency",
 			"repository": "https://github.com/paultag/go-debian",
-			"revision": "93910438ce23714cd068039f0f38d8636a33c015",
+			"revision": "16a7ca22a712d5ae233e8be4e0556dad17b944c7",
 			"branch": "master",
 			"path": "/dependency"
 		},
 		{
 			"importpath": "pault.ag/go/debian/internal",
 			"repository": "https://github.com/paultag/go-debian",
-			"revision": "93910438ce23714cd068039f0f38d8636a33c015",
+			"revision": "16a7ca22a712d5ae233e8be4e0556dad17b944c7",
 			"branch": "master",
 			"path": "/internal"
 		},
 		{
 			"importpath": "pault.ag/go/debian/version",
 			"repository": "https://github.com/paultag/go-debian",
-			"revision": "93910438ce23714cd068039f0f38d8636a33c015",
+			"revision": "16a7ca22a712d5ae233e8be4e0556dad17b944c7",
 			"branch": "master",
 			"path": "/version"
 		},
