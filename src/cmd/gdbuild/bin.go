@@ -157,8 +157,14 @@ WORKDIR /usr/src
 RUN chown -R nobody:nogroup .
 USER nobody:nogroup
 RUN dpkg-source -x %q pkg
-RUN (cd pkg && dpkg-buildpackage -uc -us -d) && mkdir .out && ln %q_* .out/
-`, ".in/"+filepath.Base(dsc.Filename), dsc.Source)
+RUN (cd pkg && dpkg-buildpackage -uc -us -d -b) \
+	&& mkdir .out \
+	&& { \
+		echo *.changes; \
+		awk '$1 == "Files:" { files = 1; next } /^ / && files { print $5 } /^[^ ]/ { files = 0 }' *.changes; \
+		echo .out/; \
+	} | xargs ln -v
+`, ".in/"+filepath.Base(dsc.Filename))
 
 	err = dockerBuild(img, dockerfile, files...)
 	if err != nil {
