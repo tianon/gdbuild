@@ -157,7 +157,7 @@ WORKDIR /usr/src
 RUN chown -R nobody:nogroup .
 USER nobody:nogroup
 RUN dpkg-source -x %q pkg
-RUN (cd pkg && dpkg-buildpackage -uc -us -d -b) \
+RUN (cd pkg && dpkg-buildpackage -uc -us -d) \
 	&& mkdir .out \
 	&& { \
 		echo *.changes; \
