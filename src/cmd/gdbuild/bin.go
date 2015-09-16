@@ -134,7 +134,7 @@ RUN find /etc/apt/sources.list.d -type f -exec rm -v '{}' + \
 
 	dockerfile += `
 RUN apt-get update && apt-get install -y \
-` // --no-install-recommends
+`
 	for _, pkg := range binsSlice {
 		bin := bins[pkg]
 		dockerfile += fmt.Sprintf("\t\t%s=%s \\\n", bin.Package, bin.Version)
