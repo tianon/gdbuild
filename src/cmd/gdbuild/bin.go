@@ -5,6 +5,7 @@ import (
 	"log"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"aptsources"
 
@@ -166,6 +167,15 @@ RUN %sapt-get update && %sapt-get install -y \
 	dockerfile += " /usr/src/.in/\n"
 
 	buildCommand := fmt.Sprintf("%sdpkg-buildpackage -uc -us -d", eatMyDataPrefix)
+
+	// TODO make "SASBS" configurable
+	buildCommand = strings.Join([]string{
+		buildCommand + " -S",
+		buildCommand + " -A",
+		buildCommand + " -S",
+		buildCommand + " -B",
+		buildCommand + " -S",
+	}, " && ")
 
 	dockerfile += fmt.Sprintf(`
 WORKDIR /usr/src
