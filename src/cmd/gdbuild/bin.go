@@ -132,9 +132,22 @@ RUN find /etc/apt/sources.list.d -type f -exec rm -v '{}' + \
 	&& echo %q | tee /etc/apt/sources.list >&2
 `, sources.ListString())
 
-	dockerfile += `
+	// TODO configurable
+	eatMyData := true
+
+	eatMyDataPrefix := ""
+	if eatMyData {
+		eatMyDataPrefix = "eatmydata "
+		dockerfile += `
 RUN apt-get update && apt-get install -y \
+		eatmydata \
+	&& rm -rf /var/lib/apt/lists/*
 `
+	}
+
+	dockerfile += fmt.Sprintf(`
+RUN %sapt-get update && %sapt-get install -y \
+`, eatMyDataPrefix, eatMyDataPrefix)
 	for _, pkg := range binsSlice {
 		bin := bins[pkg]
 		dockerfile += fmt.Sprintf("\t\t%s=%s \\\n", bin.Package, bin.Version)
@@ -152,19 +165,21 @@ RUN apt-get update && apt-get install -y \
 	}
 	dockerfile += " /usr/src/.in/\n"
 
+	buildCommand := fmt.Sprintf("%sdpkg-buildpackage -uc -us -d", eatMyDataPrefix)
+
 	dockerfile += fmt.Sprintf(`
 WORKDIR /usr/src
 RUN chown -R nobody:nogroup .
 USER nobody:nogroup
 RUN dpkg-source -x %q pkg
-RUN (cd pkg && dpkg-buildpackage -uc -us -d) \
+RUN (cd pkg && set -x && %s) \
 	&& mkdir .out \
 	&& { \
 		echo *.changes; \
 		awk '$1 == "Files:" { files = 1; next } /^ / && files { print $5 } /^[^ ]/ { files = 0 }' *.changes; \
 		echo .out/; \
 	} | xargs ln -v
-`, ".in/"+filepath.Base(dsc.Filename))
+`, ".in/"+filepath.Base(dsc.Filename), buildCommand)
 
 	err = dockerBuild(img, dockerfile, files...)
 	if err != nil {
