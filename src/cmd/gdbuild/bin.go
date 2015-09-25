@@ -169,13 +169,15 @@ RUN %sapt-get update && %sapt-get install -y \
 	buildCommand := fmt.Sprintf("%sdpkg-buildpackage -uc -us -d", eatMyDataPrefix)
 
 	// TODO make "SASBS" configurable
-	buildCommand = strings.Join([]string{
-		buildCommand + " -S",
-		buildCommand + " -A",
-		buildCommand + " -S",
-		buildCommand + " -B",
-		buildCommand + " -S",
-	}, " && ")
+	if false {
+		buildCommand = strings.Join([]string{
+			buildCommand + " -S",
+			buildCommand + " -A", // TODO stop this from failing with "dpkg-genchanges: error: binary build with no binary artifacts found; cannot distribute" when we have no arch:all packages to build
+			buildCommand + " -S",
+			buildCommand + " -B",
+			buildCommand + " -S",
+		}, " && ")
+	}
 
 	dockerfile += fmt.Sprintf(`
 WORKDIR /usr/src
