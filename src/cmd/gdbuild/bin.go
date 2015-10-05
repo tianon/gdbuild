@@ -32,6 +32,16 @@ func buildBin(dscFile string) (control.DSC, string) {
 		log.Fatalf("error, validation failed: %v\n", err)
 	}
 
+	hasArch := false
+	hasIndep := false
+	for _, arch := range dsc.Architectures {
+		if arch.CPU == "all" {
+			hasIndep = true
+		} else {
+			hasArch = true
+		}
+	}
+
 	dscMd5, err := md5sum(dscFile)
 	if err != nil {
 		log.Fatalf("error: %v\n", err)
@@ -169,14 +179,27 @@ RUN %sapt-get update && %sapt-get install -y \
 	buildCommand := fmt.Sprintf("%sdpkg-buildpackage -uc -us -d", eatMyDataPrefix)
 
 	// TODO make "SASBS" configurable
-	if false {
-		buildCommand = strings.Join([]string{
-			buildCommand + " -S",
-			buildCommand + " -A", // TODO stop this from failing with "dpkg-genchanges: error: binary build with no binary artifacts found; cannot distribute" when we have no arch:all packages to build
-			buildCommand + " -S",
-			buildCommand + " -B",
-			buildCommand + " -S",
-		}, " && ")
+	if true {
+		buildCommandParts := []string{}
+		if hasIndep {
+			buildCommandParts = append(
+				buildCommandParts,
+				buildCommand+" -S",
+				buildCommand+" -A",
+			)
+		}
+		if hasArch {
+			buildCommandParts = append(
+				buildCommandParts,
+				buildCommand+" -S",
+				buildCommand+" -B",
+			)
+		}
+		buildCommandParts = append(
+			buildCommandParts,
+			buildCommand+" -S",
+		)
+		buildCommand = strings.Join(buildCommandParts, " && ")
 	}
 
 	dockerfile += fmt.Sprintf(`
