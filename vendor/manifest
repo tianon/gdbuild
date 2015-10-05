@@ -4,49 +4,49 @@
 		{
 			"importpath": "golang.org/x/crypto/cast5",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "aedad9a179ec1ea11b7064c57cbc6dc30d7724ec",
+			"revision": "c8b9e6388ef638d5a8a9d865c634befdc46a6784",
 			"branch": "master",
 			"path": "/cast5"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/armor",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "aedad9a179ec1ea11b7064c57cbc6dc30d7724ec",
+			"revision": "c8b9e6388ef638d5a8a9d865c634befdc46a6784",
 			"branch": "master",
 			"path": "/openpgp/armor"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/clearsign",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "aedad9a179ec1ea11b7064c57cbc6dc30d7724ec",
+			"revision": "c8b9e6388ef638d5a8a9d865c634befdc46a6784",
 			"branch": "master",
 			"path": "/openpgp/clearsign"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/elgamal",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "aedad9a179ec1ea11b7064c57cbc6dc30d7724ec",
+			"revision": "c8b9e6388ef638d5a8a9d865c634befdc46a6784",
 			"branch": "master",
 			"path": "/openpgp/elgamal"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/errors",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "aedad9a179ec1ea11b7064c57cbc6dc30d7724ec",
+			"revision": "c8b9e6388ef638d5a8a9d865c634befdc46a6784",
 			"branch": "master",
 			"path": "/openpgp/errors"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/packet",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "aedad9a179ec1ea11b7064c57cbc6dc30d7724ec",
+			"revision": "c8b9e6388ef638d5a8a9d865c634befdc46a6784",
 			"branch": "master",
 			"path": "/openpgp/packet"
 		},
 		{
 			"importpath": "golang.org/x/crypto/openpgp/s2k",
 			"repository": "https://go.googlesource.com/crypto",
-			"revision": "aedad9a179ec1ea11b7064c57cbc6dc30d7724ec",
+			"revision": "c8b9e6388ef638d5a8a9d865c634befdc46a6784",
 			"branch": "master",
 			"path": "/openpgp/s2k"
 		},
