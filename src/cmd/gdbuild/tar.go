@@ -28,24 +28,25 @@ func AddStringToTar(tw *tar.Writer, name, file string) error {
 }
 
 func AddFileToTar(tw *tar.Writer, name, file string) error {
+	return addFileToTarRecurse(tw, name, file, true)
+}
+
+func addFileToTarRecurse(tw *tar.Writer, name, file string, recurse bool) error {
 	fi, err := os.Lstat(file)
 	if err != nil {
 		return err
 	}
 
-	if fi.IsDir() {
+	if fi.IsDir() && recurse {
 		err = filepath.Walk(file, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
-			}
-			if info.IsDir() {
-				return nil
 			}
 			subPath, err := filepath.Rel(file, path)
 			if err != nil {
 				return err
 			}
-			return AddFileToTar(tw, name+"/"+subPath, path)
+			return addFileToTarRecurse(tw, name+"/"+subPath, path, false)
 		})
 		if err != nil {
 			return err
