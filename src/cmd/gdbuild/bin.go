@@ -52,7 +52,7 @@ func buildBin(dscFile string) (control.DSC, string) {
 	suite := "unstable"
 	sources := aptsources.SuiteSources(suite, "main")
 	arch := "amd64"
-	sources = sources.Append(aptsources.Source{
+	sources = sources.Prepend(aptsources.Source{
 		Types:      []string{"deb", "deb-src"},
 		URIs:       []string{"http://incoming.debian.org/debian-buildd"},
 		Suites:     []string{"buildd-" + suite},
