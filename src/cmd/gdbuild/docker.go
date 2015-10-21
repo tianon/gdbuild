@@ -16,7 +16,7 @@ func docker(args ...string) *exec.Cmd {
 }
 
 func dockerCpTmp(img string, path string) (string, error) {
-	cidBytes, err := docker("run", "-di", img, "cat").Output()
+	cidBytes, err := docker("create", img, "true").Output()
 	if err != nil {
 		return "", err
 	}
