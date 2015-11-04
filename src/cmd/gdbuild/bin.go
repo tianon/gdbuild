@@ -136,6 +136,9 @@ RelLoop:
 RUN { echo '#!/bin/sh'; echo 'exit 101'; } > /usr/sbin/policy-rc.d \
 	&& chmod +x /usr/sbin/policy-rc.d
 RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/15gdbuild
+
+# put /tmp in a volume so it's always ephemeral (and performant)
+VOLUME /tmp
 `
 
 	// setup sources.list explicitly -- don't trust the tarball/base image
