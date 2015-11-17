@@ -26,7 +26,7 @@ func buildSrc(dir string) (control.Control, changelog.ChangelogEntry, string) {
 		log.Fatalf("error: %v\n", err)
 	}
 
-	img := fmt.Sprintf("gdbuild/src:%s", con.Source.Source)
+	img := fmt.Sprintf("gdbuild/src:%s_%s", con.Source.Source, scrubForDockerTag(chg.Version.String()))
 
 	dockerfile := "FROM debian:unstable\n"
 	// TODO allow this to instead be "FROM scratch\nADD some-chroot-tarball.tar.* /\n"

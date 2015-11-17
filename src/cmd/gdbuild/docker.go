@@ -6,8 +6,18 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
+
+// see https://github.com/docker/distribution/blob/0a3acb2625f553a71392ed9dc6ba1dde2cf3e3a8/reference/regexp.go#L25
+const tagRepWith = "-"
+
+var tagRep = regexp.MustCompile(`[^\w.-]`)
+
+func scrubForDockerTag(s string) string {
+	return tagRep.ReplaceAllString(s, tagRepWith)
+}
 
 func docker(args ...string) *exec.Cmd {
 	cmd := exec.Command("docker", args...)

@@ -42,11 +42,7 @@ func buildBin(dscFile string) (control.DSC, string) {
 		}
 	}
 
-	dscMd5, err := md5sum(dscFile)
-	if err != nil {
-		log.Fatalf("error: %v\n", err)
-	}
-	img := fmt.Sprintf("gdbuild/bin:%s_%s", dsc.Source, dscMd5)
+	img := fmt.Sprintf("gdbuild/bin:%s_%s", dsc.Source, scrubForDockerTag(dsc.Version.String()))
 
 	// TODO parse this information from an image?  optional commandline parameters?
 	suite := "unstable"
