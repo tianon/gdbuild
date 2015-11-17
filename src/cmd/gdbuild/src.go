@@ -108,7 +108,9 @@ WORKDIR /usr/src
 	outVer.Epoch = 0
 	pkgVer := con.Source.Source + "_" + outVer.String()
 	links := fmt.Sprintf("%q %q", pkgVer+".dsc", pkgVer+"_source.changes")
-	if !chg.Version.IsNative() {
+	if chg.Version.IsNative() {
+		links += fmt.Sprintf(" %q.*", pkgVer+".tar")
+	} else {
 		links += fmt.Sprintf(" %q.*", pkgVer+".debian.tar")
 	}
 	dockerfile += fmt.Sprintf(`
