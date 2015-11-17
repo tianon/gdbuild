@@ -38,5 +38,10 @@ func main() {
 
 		dsc, img := buildBin(arg)
 		fmt.Printf("\n- %q (%q) built in %q\n\n", dsc.Source, dsc.Version, img)
+
+		if testsuite, ok := dsc.Values["Testsuite"]; ok && testsuite == "autopkgtest" {
+			testImg := autopkgtest(img, dsc)
+			fmt.Printf("\n- tests run in %s\n", testImg)
+		}
 	}
 }
