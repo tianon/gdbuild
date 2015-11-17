@@ -41,7 +41,7 @@ func main() {
 
 		if testsuite, ok := dsc.Values["Testsuite"]; ok && testsuite == "autopkgtest" {
 			testImg := autopkgtest(img, dsc)
-			fmt.Printf("\n- tests run in %s\n", testImg)
+			fmt.Printf("\n- tests run in %s\n\n", testImg)
 		}
 	}
 }
