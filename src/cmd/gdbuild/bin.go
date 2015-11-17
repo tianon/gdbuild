@@ -177,7 +177,7 @@ RUN %sapt-get update && %sapt-get install -y \
 	}
 	dockerfile += " /usr/src/.in/\n"
 
-	buildCommand := fmt.Sprintf("%sdpkg-buildpackage -uc -us -d", eatMyDataPrefix)
+	buildCommand := fmt.Sprintf("%sdpkg-buildpackage -uc -us -d -sa", eatMyDataPrefix)
 
 	// TODO make "SASBS" configurable
 	if true {
@@ -199,6 +199,9 @@ RUN %sapt-get update && %sapt-get install -y \
 		buildCommandParts = append(
 			buildCommandParts,
 			buildCommand+" -S",
+			// end with a full build of "ALL THE THINGS" so we have good, consistent .changes and .dsc
+			"rm ../*.changes ../*.dsc ../*.deb",
+			buildCommand,
 		)
 		buildCommand = strings.Join(buildCommandParts, " && ")
 	}
