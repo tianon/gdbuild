@@ -19,10 +19,11 @@ RUN apt-get update && apt-get install -y \
 		autopkgtest \
 	&& rm -rf /var/lib/apt/lists/*
 
+# use adt-virt-chroot instead of adt-virt-null so that it doesn't think it has "isolation-machine" capability
 RUN adt-run \
 		--changes .out/*.changes \
 		--apt-upgrade \
-		--- null \
+		--- chroot / \
 	&& rm -rf /var/lib/apt/lists/*
 `
 
