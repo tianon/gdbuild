@@ -1,4 +1,6 @@
-FROM golang:1.4
+FROM golang:1.5-alpine
+
+RUN apk add --update git && rm -rf /var/cache/apk/*
 
 RUN go get -v github.com/constabulary/gb/...
 
