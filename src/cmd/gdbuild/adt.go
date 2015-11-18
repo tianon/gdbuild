@@ -24,7 +24,12 @@ RUN adt-run \
 		--changes .out/*.changes \
 		--apt-upgrade \
 		--- chroot / \
-	&& rm -rf /var/lib/apt/lists/*
+	; code=$? \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& case "$code" in \
+		2) echo >&2 'WARNING: some tests were skipped!' ;; \
+		*) exit "$code" ;; \
+	esac
 `
 
 	err := dockerBuild(img, dockerfile)
