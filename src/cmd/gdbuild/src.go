@@ -92,7 +92,7 @@ WORKDIR /usr/src
 			}
 			dockerfile += fmt.Sprintf(" \\\n\t&& mkdir %q && tar -xC %q -f %q --strip-components=1", targetDir, targetDir, orig)
 		}
-		dockerfile += "\n"
+		dockerfile += " \\\n\t&& rm -rf /usr/src/pkg/debian\n"
 
 		dockerfile += "\nCOPY debian /usr/src/pkg/debian\n"
 	} else {
