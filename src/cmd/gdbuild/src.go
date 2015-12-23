@@ -115,16 +115,24 @@ WORKDIR /usr/src
 	pkgVer := con.Source.Source + "_" + outVer.String()
 	links := fmt.Sprintf("%q %q", pkgVer+".dsc", pkgVer+"_source.changes")
 	if chg.Version.IsNative() {
-		links += fmt.Sprintf(" %q.*", pkgVer+".tar")
+		links += fmt.Sprintf(" %q.tar.*", pkgVer)
 	} else {
-		links += fmt.Sprintf(" %q.*", pkgVer+".debian.tar")
+		links += fmt.Sprintf(" %q.debian.tar.*", pkgVer)
+		links += fmt.Sprintf(" %q.diff.*", pkgVer)
 	}
 	dockerfile += fmt.Sprintf(`
 # work around overlayfs issues (data inconsistency issues; see https://github.com/docker/docker/issues/10180)
 VOLUME /usr/src/pkg
 # rm: cannot remove 'pkg/.pc/xyz.patch': Directory not empty
 
-RUN (cd pkg && dpkg-buildpackage -uc -us -S -nc) && mkdir -p .out && ln %s .out/
+RUN (cd pkg && dpkg-buildpackage -uc -us -S -nc) \
+	&& mkdir -p .out \
+	&& set -ex \
+	&& for f in %s; do \
+		if [ -e "$f" ]; then \
+			ln "$f" .out/; \
+		fi; \
+	done
 `, links)
 
 	err = dockerBuild(img, dockerfile, files...)
