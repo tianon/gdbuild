@@ -121,7 +121,7 @@ WORKDIR /usr/src
 		links += fmt.Sprintf(" %q.diff.*", pkgVer)
 	}
 	dockerfile += fmt.Sprintf(`
-# work around overlayfs issues (data inconsistency issues; see https://github.com/docker/docker/issues/10180)
+# work around overlayfs bugs (data inconsistency issues; see https://github.com/docker/docker/issues/10180)
 VOLUME /usr/src/pkg
 # rm: cannot remove 'pkg/.pc/xyz.patch': Directory not empty
 

@@ -211,6 +211,11 @@ WORKDIR /usr/src
 RUN chown -R nobody:nogroup .
 USER nobody:nogroup
 RUN dpkg-source -x %q pkg
+
+# work around overlayfs bugs (data inconsistency issues; see https://github.com/docker/docker/issues/10180)
+VOLUME /usr/src/pkg
+# rm: cannot remove 'pkg/.pc/xyz.patch': Directory not empty
+
 RUN (cd pkg && set -x && %s) \
 	&& mkdir .out \
 	&& { \
