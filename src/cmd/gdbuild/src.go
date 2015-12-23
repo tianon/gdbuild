@@ -78,7 +78,13 @@ WORKDIR /usr/src
 			dockerfile += " " + filepath.Base(f)
 		}
 		dockerfile += " /usr/src/.out/\n"
-		dockerfile += fmt.Sprintf("RUN ln -s .out/%q.tar.* .out/%q-*.tar.* ./\n", origBase, origBase)
+		dockerfile += fmt.Sprintf(`RUN set -ex \
+	&& for f in .out/%q.tar.* .out/%q-*.tar.*; do \
+		if [ -e "$f" ]; then \
+			ln -s "$f" ./; \
+		fi; \
+	done
+`, origBase, origBase)
 
 		dockerfile += "\n# origtargz --unpack\n"
 		re := regexp.MustCompile(fmt.Sprintf(`^%s(?:-(.*))?\.tar\..*$`, regexp.QuoteMeta(origBase)))
