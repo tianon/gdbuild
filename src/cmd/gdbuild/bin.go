@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"aptsources"
+	"github.com/tianon/go-aptsources"
 
 	"pault.ag/go/debian/control"
 	"pault.ag/go/debian/dependency"
