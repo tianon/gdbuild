@@ -13,6 +13,12 @@ import (
 	"pault.ag/go/debian/dependency"
 )
 
+const (
+	// TODO provide proper configuration knobs for these
+	doEatMyData = true
+	doSASBS     = true
+)
+
 func binSatPossi(depArch *dependency.Arch, bin control.BinaryIndex, possi dependency.Possibility) bool {
 	return !possi.Substvar &&
 		(possi.Architectures == nil || possi.Architectures.Matches(depArch)) &&
@@ -144,11 +150,8 @@ RUN find /etc/apt/sources.list.d -type f -exec rm -v '{}' + \
 	&& echo %q | tee /etc/apt/sources.list >&2
 `, sources.ListString())
 
-	// TODO configurable
-	eatMyData := true
-
 	eatMyDataPrefix := ""
-	if eatMyData {
+	if doEatMyData {
 		eatMyDataPrefix = "eatmydata "
 		dockerfile += `
 RUN apt-get update && apt-get install -y \
@@ -179,8 +182,7 @@ RUN %sapt-get update && %sapt-get install -y \
 
 	buildCommand := fmt.Sprintf("%sdpkg-buildpackage -uc -us -d -sa", eatMyDataPrefix)
 
-	// TODO make "SASBS" configurable
-	if true {
+	if doSASBS {
 		buildCommandParts := []string{}
 		if hasIndep {
 			buildCommandParts = append(
