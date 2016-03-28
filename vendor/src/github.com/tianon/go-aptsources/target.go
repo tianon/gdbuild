@@ -4,10 +4,20 @@ import (
 	"strings"
 )
 
-func SuiteSources(suite string, components ...string) Sources {
+var (
+	DefaultTypes = []string{"deb", "deb-src"}
+
+	DefaultDebianURIs         = []string{"http://httpredir.debian.org/debian"}
+	DefaultDebianSecurityURIs = []string{"http://security.debian.org"}
+
+	DefaultUbuntuURIs = []string{"http://archive.ubuntu.com/ubuntu"}
+)
+
+func DebianSources(suite string, components ...string) Sources {
+	suite = strings.TrimSuffix(suite, "-security")
 	source := Source{
-		Types:      []string{"deb", "deb-src"},
-		URIs:       []string{"http://httpredir.debian.org/debian"},
+		Types:      DefaultTypes,
+		URIs:       DefaultDebianURIs,
 		Suites:     []string{suite},
 		Components: components,
 	}
@@ -29,7 +39,7 @@ func SuiteSources(suite string, components ...string) Sources {
 	source.Suites = append(source.Suites, suite+"-updates")
 	sources := New(source, Source{
 		Types:      source.Types,
-		URIs:       []string{"http://security.debian.org"},
+		URIs:       DefaultDebianSecurityURIs,
 		Suites:     []string{suite + "/updates"},
 		Components: source.Components,
 	})
@@ -45,4 +55,15 @@ func SuiteSources(suite string, components ...string) Sources {
 		}
 	}
 	return sources
+}
+
+func UbuntuSources(suite string, components ...string) Sources {
+	suite = strings.TrimSuffix(suite, "-updates")
+	suite = strings.TrimSuffix(suite, "-security")
+	return New(Source{
+		Types:      DefaultTypes,
+		URIs:       DefaultUbuntuURIs,
+		Suites:     []string{suite, suite + "-updates", suite + "-security"},
+		Components: components,
+	})
 }

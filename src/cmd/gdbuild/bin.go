@@ -52,7 +52,7 @@ func buildBin(dscFile string) (control.DSC, string) {
 
 	// TODO parse this information from an image?  optional commandline parameters?
 	suite := "unstable"
-	sources := aptsources.SuiteSources(suite, "main")
+	sources := aptsources.DebianSources(suite, "main")
 	arch := "amd64"
 
 	// prepend incoming so we get the latest and greatest
