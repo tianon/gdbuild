@@ -2,15 +2,15 @@
 	"version": 0,
 	"dependencies": [
 		{
-			"importpath": "github.com/tianon/go-aptsources",
-			"repository": "https://github.com/tianon/go-aptsources",
-			"revision": "68ee2c4fc308abecafa2f12b73cdd38eace695d6",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/xi2/xz",
 			"repository": "https://github.com/xi2/xz",
 			"revision": "18c6b7129324841d920ee8dc1ab66ec07054998f",
+			"branch": "master"
+		},
+		{
+			"importpath": "go.tianon.xyz/aptsources",
+			"repository": "https://github.com/tianon/go-aptsources.git",
+			"revision": "68ee2c4fc308abecafa2f12b73cdd38eace695d6",
 			"branch": "master"
 		},
 		{
