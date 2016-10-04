@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -179,6 +180,10 @@ RUN %sapt-get update && %sapt-get install -y \
 		dockerfile += " " + filepath.Base(f)
 	}
 	dockerfile += " /usr/src/.in/\n"
+
+	if debBuildOptions := os.Getenv("DEB_BUILD_OPTIONS"); debBuildOptions != "" {
+		dockerfile += fmt.Sprintf("\nENV DEB_BUILD_OPTIONS %s\n", debBuildOptions)
+	}
 
 	buildCommand := fmt.Sprintf("%sdpkg-buildpackage -uc -us -d -sa", eatMyDataPrefix)
 
