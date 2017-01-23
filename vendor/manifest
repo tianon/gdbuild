@@ -10,7 +10,7 @@
 		{
 			"importpath": "go.tianon.xyz/aptsources",
 			"repository": "https://github.com/tianon/go-aptsources.git",
-			"revision": "68ee2c4fc308abecafa2f12b73cdd38eace695d6",
+			"revision": "e066ed9cd8cd9eef7198765bd00ec99679e6d0be",
 			"branch": "master"
 		},
 		{

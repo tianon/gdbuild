@@ -1,4 +1,4 @@
-package aptsources
+package aptsources // import "go.tianon.xyz/aptsources"
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ type Source struct {
 
 	// required
 	Types      []string `delim:" "` // "deb", "deb-src"
-	URIs       []string `delim:" "` // "http://httpredir.debian.org/debian"
+	URIs       []string `delim:" "` // "http://deb.debian.org/debian"
 	Suites     []string `delim:" "` // "jessie", "jsmith-unstable/"
 	Components []string `delim:" "` // "main", "contrib", "non-free" (optional if suite ends in "/")
 
